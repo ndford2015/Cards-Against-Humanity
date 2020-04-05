@@ -95,15 +95,26 @@ function onListening() {
 // Handle creating and joining games
 
 const games = {};
-
+const players = {};
 io.on('connection', function(socket){
   console.log('a user connected with id: ', socket.id);
   socket.on('createGame', (gameName) => {
     games[socket.id] = {
       id: socket.id,
-      name: gameName
+      name: gameName,
+      players: []
     };
     console.log('games: ', games);
+  });
+  socket.on('joinGame', (gameId, playerName) => {
+    games[gameId].players.push(socket.id);
+    players[socket.id] = {
+      id: socket.id,
+      name: playerName,
+      whiteCards: [],
+      blackCards: [],
+      isJudge: false
+    }
   });
 
   io.emit('getGames', games);

@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('cah-be:server');
 var http = require('http');
+var gameData = require('../public/game_data.json');
 
 /**
  * Get port from environment and store in Express.
@@ -93,22 +94,28 @@ function onListening() {
 }
 
 // Handle creating and joining games
-
+var _ = require('lodash');
 const games = {};
-const players = {};
+let interval;
 io.on('connection', function(socket){
   console.log('a user connected with id: ', socket.id);
+  if (interval) {
+    clearInterval(interval);
+  }
+
   socket.on('createGame', (gameName) => {
     games[socket.id] = {
       id: socket.id,
       name: gameName,
-      players: []
+      players: {},
+      blackCards: _.shuffle([...gameData.blackCards]),
+      whiteCards: _.shuffle([...gameData.whiteCards])
     };
     console.log('games: ', games);
   });
+
   socket.on('joinGame', (gameId, playerName) => {
-    games[gameId].players.push(socket.id);
-    players[socket.id] = {
+    games[gameId].players[socket.id] = {
       id: socket.id,
       name: playerName,
       whiteCards: [],
@@ -117,6 +124,13 @@ io.on('connection', function(socket){
     }
   });
 
-  io.emit('getGames', games);
+  socket.on('subscribeToGame', (gameId) => {
+    socket.emit('updatedGameState', games[gameId]);
+    setInterval(() => {
+      socket.emit('updatedGameState', games[gameId]);
+    }, 5000);
+  });
+  io.emit('getGames', games)
+  interval = setInterval(() => io.emit('getGames', games), 5000);
 
 });

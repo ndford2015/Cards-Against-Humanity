@@ -4,53 +4,62 @@ import socketIOClient from 'socket.io-client';
 import { BACKEND_URL } from '../constants/api';
 import { autobind } from 'core-decorators';
 import './games.css';
+import { PlayerView } from './player-view';
 
 export interface IGameState {
     readonly games: any;
     readonly gameName: string;
     readonly playerName: string;
-    readonly currentGame: any;
+    readonly gameToJoin: string;
     readonly modalOpen: boolean;
+    readonly subscribedGame: any;
 }
 export class Games extends React.Component<any, IGameState> {
-    
+    public socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
     constructor(props: any) {
         super(props);
         this.state = {
             games: {},
-            currentGame: null,
+            gameToJoin: '',
             gameName: '',
             playerName: '',
-            modalOpen: false
+            modalOpen: false,
+            subscribedGame: null
         }
     }
 
     public componentDidMount(): void {
-        const socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
-        socket.on('getGames', (games: any) => {
+        // const socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
+        this.socket.on('getGames', (games: any) => {
             this.setState({games});
             console.log('games: ', games);
         });
+       
+        this.socket.on('updatedGameState', (game: any) => {
+            console.log('SUBSCRIBING')
+            this.setState({subscribedGame: game})
+        });
+        
     }
 
     @autobind
     public createGame(): void {
-        const socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
-        socket.emit('createGame', this.state.gameName);
-        socket.on('connect', () => this.props.history.push(`/games/${socket.id}`));
+        this.socket.emit('createGame', this.state.gameName);
+        this.props.history.push(`/games/${this.socket.id}`);
     }
 
     @autobind 
     public joinGame(): void {
-        const socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
-        if (this.state.currentGame) {
-            socket.emit('joinGame', this.state.currentGame.id, this.state.playerName);
+        if (this.state.gameToJoin) {
+            console.log('JOINING A GAME',)
+            this.socket.emit('joinGame', this.state.gameToJoin, this.state.playerName);
+            this.socket.emit('subscribeToGame', this.state.gameToJoin);
         }
     }
 
     @autobind 
-    public setCurrentGame(game: any): void {
-        this.setState({currentGame: game, modalOpen: true});
+    public setCurrentGame(gameId: string): void {
+        this.setState({gameToJoin: gameId, modalOpen: true});
     }
 
     @autobind
@@ -85,12 +94,14 @@ export class Games extends React.Component<any, IGameState> {
     }
 
     public render(): JSX.Element {
-        return (
+        return this.state.subscribedGame 
+            ? <PlayerView playerInfo={this.state.subscribedGame.players[this.socket.id]}/> 
+            : (
             <div className="games-container">
                 <Input onChange={this.setGameName}/>
                 <Button onClick={this.createGame}>Create Game</Button>
                 {Object.values(this.state.games).map((game: any) => {
-                    const setCurrentGame: any = () => this.setCurrentGame(game)
+                    const setCurrentGame: any = () => this.setCurrentGame(game.id)
                     return <Button className="game-button" onClick={setCurrentGame}>{`Join ${game.name}`}</Button>
                 })}
                 {this.getJoinModal()}

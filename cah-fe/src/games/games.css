@@ -1,9 +1,24 @@
 .game-button {
-    margin: 10px 0px !important;
+    margin-top: 10px !important;
 }
 
 .games-container {
     display: flex;
     flex-direction: column;
     width: 50%;
+    margin: 15px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.available-games {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0px;
+    font-size: 1.5em;
+}
+
+.create-game-btn {
+    width: 130px;
+    margin: 0px 10px !important;
 }

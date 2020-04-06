@@ -114,9 +114,9 @@ io.on('connection', function(socket){
     console.log('games: ', games);
   });
 
-  socket.on('joinGame', (gameId, playerName) => {
-    games[gameId].players[socket.id] = {
-      id: socket.id,
+  socket.on('joinGame', (gameId, playerName, playerId) => {
+    games[gameId].players[playerId] = {
+      id: playerId,
       name: playerName,
       whiteCards: [],
       blackCards: [],

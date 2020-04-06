@@ -10,6 +10,7 @@ export interface IGameState {
     readonly games: any;
     readonly gameName: string;
     readonly playerName: string;
+    readonly playerId: string;
     readonly gameToJoin: string;
     readonly modalOpen: boolean;
     readonly subscribedGame: any;
@@ -24,19 +25,27 @@ export class Games extends React.Component<any, IGameState> {
             gameName: '',
             playerName: '',
             modalOpen: false,
-            subscribedGame: null
+            subscribedGame: null,
+            playerId: ''
         }
     }
 
     public componentDidMount(): void {
         // const socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
+        this.socket.on('connect', () => {
+            const playerId: string | null = window.localStorage.getItem('playerId');
+            if (playerId) {
+                this.setState({playerId});
+            } else {
+                this.setState({playerId: this.socket.id});
+                window.localStorage.setItem('playerId', this.socket.id);
+            }
+        });
         this.socket.on('getGames', (games: any) => {
             this.setState({games});
-            console.log('games: ', games);
         });
        
         this.socket.on('updatedGameState', (game: any) => {
-            console.log('SUBSCRIBING')
             this.setState({subscribedGame: game})
         });
         
@@ -51,15 +60,19 @@ export class Games extends React.Component<any, IGameState> {
     @autobind 
     public joinGame(): void {
         if (this.state.gameToJoin) {
-            console.log('JOINING A GAME',)
-            this.socket.emit('joinGame', this.state.gameToJoin, this.state.playerName);
+            this.socket.emit('joinGame', this.state.gameToJoin, this.state.playerName, this.state.playerId);
             this.socket.emit('subscribeToGame', this.state.gameToJoin);
         }
+        
     }
 
     @autobind 
     public setCurrentGame(gameId: string): void {
-        this.setState({gameToJoin: gameId, modalOpen: true});
+        if (this.state.games[gameId].players[this.state.playerId]) {
+            this.socket.emit('subscribeToGame', gameId);
+        } else {
+            this.setState({gameToJoin: gameId, modalOpen: true});
+        }
     }
 
     @autobind
@@ -95,15 +108,26 @@ export class Games extends React.Component<any, IGameState> {
 
     public render(): JSX.Element {
         return this.state.subscribedGame 
-            ? <PlayerView playerInfo={this.state.subscribedGame.players[this.socket.id]}/> 
+            ? <PlayerView playerInfo={this.state.subscribedGame.players[this.state.playerId]}/> 
             : (
             <div className="games-container">
-                <Input onChange={this.setGameName}/>
-                <Button onClick={this.createGame}>Create Game</Button>
-                {Object.values(this.state.games).map((game: any) => {
-                    const setCurrentGame: any = () => this.setCurrentGame(game.id)
-                    return <Button className="game-button" onClick={setCurrentGame}>{`Join ${game.name}`}</Button>
-                })}
+                <h3>{'Create a new game!'}</h3>
+                <div>
+                    <Input placeholder="Enter a name for the game!" onChange={this.setGameName}/>
+                    <Button 
+                        className="create-game-btn" 
+                        onClick={this.createGame}
+                    >
+                        Create Game
+                    </Button>
+                </div>
+                <div className='available-games'>
+                    {'Available Games'}
+                    {Object.values(this.state.games).map((game: any) => {
+                        const setCurrentGame: any = () => this.setCurrentGame(game.id)
+                        return <Button className="game-button" onClick={setCurrentGame}>{`Join ${game.name}`}</Button>
+                    })}
+                </div>
                 {this.getJoinModal()}
             </div>
         )

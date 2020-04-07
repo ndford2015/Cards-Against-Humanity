@@ -109,7 +109,10 @@ io.on('connection', function(socket){
       name: gameName,
       players: {},
       blackCards: _.shuffle([...gameData.blackCards]),
-      whiteCards: _.shuffle([...gameData.whiteCards])
+      whiteCards: _.shuffle([...gameData.whiteCards]),
+      activeBlackCard: null,
+      playedWhiteCards: [],
+      currentJudge: null
     };
     console.log('games: ', games);
   });
@@ -120,15 +123,21 @@ io.on('connection', function(socket){
       name: playerName,
       whiteCards: [],
       blackCards: [],
-      isJudge: false
+      isJudge: false,
+      score: 0
     }
   });
+
+  socket.on('getWhiteCard', (gameId, playerId) => {
+    const whiteCard = games[gameId].whiteCards.pop();
+    games[gameId].players[playerId].whiteCards.push(whiteCard);
+  })
 
   socket.on('subscribeToGame', (gameId) => {
     socket.emit('updatedGameState', games[gameId]);
     setInterval(() => {
       socket.emit('updatedGameState', games[gameId]);
-    }, 5000);
+    }, 1000);
   });
   io.emit('getGames', games)
   interval = setInterval(() => io.emit('getGames', games), 5000);

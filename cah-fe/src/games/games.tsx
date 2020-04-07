@@ -52,6 +52,11 @@ export class Games extends React.Component<any, IGameState> {
     }
 
     @autobind
+    public getWhiteCard(): void {
+        this.socket.emit('getWhiteCard', this.state.subscribedGame.id, this.state.playerId);
+    }
+
+    @autobind
     public createGame(): void {
         this.socket.emit('createGame', this.state.gameName);
         this.props.history.push(`/games/${this.socket.id}`);
@@ -108,7 +113,10 @@ export class Games extends React.Component<any, IGameState> {
 
     public render(): JSX.Element {
         return this.state.subscribedGame 
-            ? <PlayerView playerInfo={this.state.subscribedGame.players[this.state.playerId]}/> 
+            ?   <PlayerView 
+                    getWhiteCard={this.getWhiteCard} 
+                    playerInfo={this.state.subscribedGame.players[this.state.playerId]}
+                /> 
             : (
             <div className="games-container">
                 <h3>{'Create a new game!'}</h3>

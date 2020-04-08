@@ -104,34 +104,55 @@ io.on('connection', function(socket){
   }
 
   socket.on('createGame', (gameName) => {
+    const blackCards = _.shuffle([...gameData.blackCards]);
+    const activeBlackCard = blackCards.pop();
     games[socket.id] = {
       id: socket.id,
       name: gameName,
       players: {},
-      blackCards: _.shuffle([...gameData.blackCards]),
+      blackCards: blackCards,
       whiteCards: _.shuffle([...gameData.whiteCards]),
-      activeBlackCard: null,
+      activeBlackCard,
       playedWhiteCards: [],
       currentJudge: null
     };
-    console.log('games: ', games);
   });
 
   socket.on('joinGame', (gameId, playerName, playerId) => {
     games[gameId].players[playerId] = {
       id: playerId,
       name: playerName,
-      whiteCards: [],
+      whiteCards: [...games[gameId].whiteCards.splice(-10, 10)],
       blackCards: [],
       isJudge: false,
       score: 0
     }
   });
 
+  socket.on('setJudge', (gameId, playerId) => {
+    console.log('setting current judge: ', playerId);
+    games[gameId].currentJudge = playerId;
+  })
+
   socket.on('getWhiteCard', (gameId, playerId) => {
     const whiteCard = games[gameId].whiteCards.pop();
     games[gameId].players[playerId].whiteCards.push(whiteCard);
-  })
+  });
+
+  socket.on('endRound', (gameId, winnerId) => {
+    games[gameId].currentJudge = null;
+    games[gameId].playedWhiteCards = [];
+    games[gameId].players[winnerId].score++;
+    games[gameId].activeBlackCard = games[gameId].blackCards.pop();
+  });
+
+  socket.on('playCard', (gameId, playerId, cardName) => {
+    const playerWhiteCards = games[gameId].players[playerId].whiteCards;
+    const cardIndex = playerWhiteCards.indexOf(cardName);
+    playerWhiteCards.splice(cardIndex, 1);
+    games[gameId].playedWhiteCards.push({playerId, cardName});
+    playerWhiteCards.push(games[gameId].whiteCards.pop());
+  });
 
   socket.on('subscribeToGame', (gameId) => {
     socket.emit('updatedGameState', games[gameId]);

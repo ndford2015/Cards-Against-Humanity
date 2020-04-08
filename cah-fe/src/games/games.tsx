@@ -5,6 +5,7 @@ import { BACKEND_URL } from '../constants/api';
 import { autobind } from 'core-decorators';
 import './games.css';
 import { PlayerView } from './player-view';
+import { JudgeView } from './judge-view';
 
 export interface IGameState {
     readonly games: any;
@@ -93,6 +94,11 @@ export class Games extends React.Component<any, IGameState> {
     }
 
     @autobind
+    public playCard(cardName: string, playerId: string) {
+        this.socket.emit('playCard', this.state.subscribedGame.id, playerId, cardName);
+    }
+
+    @autobind
     public getJoinModal(): JSX.Element {
         return (
             <Modal closeOnDimmerClick onClose={this.onCloseModal} open={this.state.modalOpen} size={'mini'}>
@@ -111,12 +117,25 @@ export class Games extends React.Component<any, IGameState> {
         this.setState({modalOpen: false});
     }
 
+    @autobind 
+    public getPlayerView(): JSX.Element {
+        const { subscribedGame, playerId } = this.state;
+        return subscribedGame.currentJudge === playerId
+            ? <JudgeView
+                playedCards={subscribedGame.playedWhiteCards}
+                playerName={subscribedGame.players[playerId].name}
+            />
+            : <PlayerView 
+                getWhiteCard={this.getWhiteCard} 
+                playerInfo={this.state.subscribedGame.players[this.state.playerId]}
+                playedCards={this.state.subscribedGame.playedWhiteCards}
+                playCard={this.playCard}
+            /> 
+    }
+
     public render(): JSX.Element {
         return this.state.subscribedGame 
-            ?   <PlayerView 
-                    getWhiteCard={this.getWhiteCard} 
-                    playerInfo={this.state.subscribedGame.players[this.state.playerId]}
-                /> 
+            ?  this.getPlayerView() 
             : (
             <div className="games-container">
                 <h3>{'Create a new game!'}</h3>

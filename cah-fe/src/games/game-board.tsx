@@ -2,6 +2,7 @@ import * as React from 'react'
 import socketIOClient from 'socket.io-client';
 import { BACKEND_URL } from '../constants/api';
 import { Button, Loader } from 'semantic-ui-react';
+import { autobind } from 'core-decorators';
 
 export class GameBoard extends React.Component<any, any> {
     socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
@@ -19,33 +20,41 @@ export class GameBoard extends React.Component<any, any> {
         });
     }
 
+    @autobind
+    public getMakeJudgeButton(playerId: string): JSX.Element | null {
+        const setJudge: any = () => this.socket.emit('setJudge', this.state.game.id, playerId);
+        return !this.state.game.currentJudge 
+            ? <Button onClick={setJudge} positive>Make judge</Button>
+            : null;
+    }
+
+ 
+
     public render(): JSX.Element {
-        console.log(this.state.game);
         if (!this.state.game) {
             return <Loader active/>
         }
         const { currentJudge, activeBlackCard, players, name } = this.state.game;
         return (
             <div>
-                {`Welcome to ${name}`}
+                <div className="game-board-header">{`Welcome to game: ${name}`}</div>
                 <div className="round-info">
-                    <div className="active-judge">
+                    <div className="active-judge-header">
                         {currentJudge 
-                            ? `${players[currentJudge].name} is judging` 
-                            : "No judge selected, choose a judge for this round!"}
+                            ? `${players[currentJudge].name} is judging!` 
+                            : 'No judge selected, choose a judge for this round!'}
                     </div>
                     <div className="active-black-card">
-                        {"Current black card: "}
-                        {activeBlackCard || "No black card selected, click the button below to start a new round!"}
+                        {activeBlackCard.text}
                     </div>
-                    <Button positive>Start a new round</Button>
                 </div>
                 <div className="game-players">
                     {Object.values(players).map((player: any) => {
-                        return (<div className="player-card">
-                            <div>{player.name}</div>
-                            <div>{player.score}</div>
-                            <Button positive>Make judge</Button>
+                        const activeJudgeClass: string = currentJudge === player.id ? ' active-judge' : '';
+                        return (<div className={`player-card${activeJudgeClass}`}>
+                            <div className="player-card-header">{player.name}</div>
+                            <div><div>{'Score: '}</div>{player.score}</div>
+                            {this.getMakeJudgeButton(player.id)}
                         </div>)
                     })}
                 </div>

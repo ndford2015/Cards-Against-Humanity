@@ -46,6 +46,9 @@ html, body {
 .game-players {
     display: flex;
     flex-direction: row;
+    position: fixed;
+    bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .player-card {
@@ -53,9 +56,31 @@ html, body {
     padding: 10px;
     border: 1px solid black;
     border-radius: 5px;
+    margin-bottom: 10px;
+    min-width: 100px;
+    min-height: 100px;
 }
 
-.white-card {
+.player-card-header {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 2px;
+    border-bottom: 1px solid black;
+    padding-bottom: 8px
+}
+
+.player-card :nth-child(2) {
+    display: flex;
+    flex-direction: row;
+    padding: 4px 0px;
+}
+
+.player-card :nth-child(2) :first-child {
+    font-weight: 500;
+    margin-right: 3px;
+}
+
+.white-card, .judge-card {
     padding: 10px;
     border: 1px solid black;
     border-radius: 5px;
@@ -77,10 +102,57 @@ html, body {
     width: 100%;
 }
 
-.player-view-header {
+.player-view-header, .judge-header {
     margin-left: 30px;
     margin-top: 10px;
     margin-bottom: 10px;
     font-size: 2em;
     white-space: wrap;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.judge-info {
+    text-align: center;
+    font-size: 1.5em;
+    margin: 20px 0px;
+}
+
+.active-black-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    width: 300px;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: black;
+    color: white;
+    margin: 10px 0px;
+    font-size: 2em;
+    line-height: 1.5;
+}
+
+.round-info {
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-board-header {
+    margin: 10px;
+    font-size: 2em;
+    text-align: center;
+}
+
+.active-judge-header {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.active-judge {
+    border: 2px solid #21ba45;
 }

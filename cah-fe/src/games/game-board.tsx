@@ -42,7 +42,7 @@ export class GameBoard extends React.Component<any, any> {
                     <div className="active-judge-header">
                         {currentJudge 
                             ? `${players[currentJudge].name} is judging!` 
-                            : 'No judge selected, choose a judge for this round!'}
+                            : '**No judge selected, choose a judge to start round!**'}
                     </div>
                     <div className="active-black-card">
                         {activeBlackCard.text}

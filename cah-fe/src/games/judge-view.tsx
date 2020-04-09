@@ -8,10 +8,11 @@ export class JudgeView extends React.Component<any, any> {
     @autobind
     public getJudgeCards(): JSX.Element {
         return this.props.playedCards.map((card: any) => {
+                const pickWinner: any = () => this.props.pickWinner(card.playerId)
                 return (
                     <div className="judge-card">
                         {card.cardName}
-                        <Button positive>Select as winner</Button>
+                        <Button onClick={pickWinner} positive>Select as winner</Button>
                     </div>
                 )
             });

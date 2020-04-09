@@ -12,8 +12,8 @@ html, body {
 .games-container {
     display: flex;
     flex-direction: column;
-    width: 50%;
-    margin: 15px;
+    width: 100%;
+    padding: 20px;
     height: 100%;
     overflow: hidden;
 }
@@ -25,6 +25,19 @@ html, body {
     font-size: 1.5em;
 }
 
+.ui.modal>.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.ui.modal .actions>.button {
+    width: 100%;
+    margin: 0px;
+}
+
+.ui.modal .actions {
+    padding: 10px !important;
+}
 .create-game-btn {
     width: 130px;
     margin: 0px 10px !important;
@@ -35,12 +48,17 @@ html, body {
     flex-direction: column;
     width: 100%;
     overflow-x: hidden;
-  
+    padding: 10px;
+    margin-bottom: 20px;
 }
 
 .player-view-cards {
     display: flex;
     flex-direction: column;
+}
+
+.white-card .button {
+    width: 100%;
 }
 
 .game-players {
@@ -84,14 +102,14 @@ html, body {
     padding: 10px;
     border: 1px solid black;
     border-radius: 5px;
-    margin: 10px 30px 0px 30px;
+    margin-top: 10px;
     display:flex;
     flex-direction: column;
     align-items: center;
     font-size: 1.5em;
     justify-content: space-evenly;
-    height: 110px;
     text-align: center;
+    line-height: 1.5;
 }
 .player-view-buttons {
     display: flex;
@@ -103,9 +121,7 @@ html, body {
 }
 
 .player-view-header, .judge-header {
-    margin-left: 30px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    padding: 10px;
     font-size: 2em;
     white-space: wrap;
     text-align: center;
@@ -151,6 +167,10 @@ html, body {
 .active-judge-header {
     font-size: 1.5em;
     margin-bottom: 10px;
+    color: crimson;
+    border: 1px solid crimson;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 .active-judge {

@@ -117,6 +117,16 @@ export class Games extends React.Component<any, IGameState> {
         this.setState({modalOpen: false});
     }
 
+    @autobind
+    public pickWinner(playerId: string): void {
+        this.socket.emit('pickWinner', this.state.subscribedGame.id, playerId)
+    }
+
+    @autobind
+    public swapCards(playerId: string): void {
+        this.socket.emit('swapCards', this.state.subscribedGame.id, playerId);
+    }
+
     @autobind 
     public getPlayerView(): JSX.Element {
         const { subscribedGame, playerId } = this.state;
@@ -124,12 +134,15 @@ export class Games extends React.Component<any, IGameState> {
             ? <JudgeView
                 playedCards={subscribedGame.playedWhiteCards}
                 playerName={subscribedGame.players[playerId].name}
+                pickWinner={this.pickWinner}
             />
             : <PlayerView 
                 getWhiteCard={this.getWhiteCard} 
                 playerInfo={this.state.subscribedGame.players[this.state.playerId]}
                 playedCards={this.state.subscribedGame.playedWhiteCards}
                 playCard={this.playCard}
+                swapCards={this.swapCards}
+                currentJudge={this.state.subscribedGame.currentJudge}
             /> 
     }
 

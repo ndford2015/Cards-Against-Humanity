@@ -139,11 +139,16 @@ io.on('connection', function(socket){
     games[gameId].players[playerId].whiteCards.push(whiteCard);
   });
 
-  socket.on('endRound', (gameId, winnerId) => {
+  socket.on('pickWinner', (gameId, winnerId) => {
     games[gameId].currentJudge = null;
     games[gameId].playedWhiteCards = [];
     games[gameId].players[winnerId].score++;
     games[gameId].activeBlackCard = games[gameId].blackCards.pop();
+  });
+
+  socket.on('swapCards', (gameId, playerId) => {
+    const newCards = games[gameId].whiteCards.splice(-10, 10);
+    games[gameId].players[playerId].whiteCards = newCards;
   });
 
   socket.on('playCard', (gameId, playerId, cardName) => {

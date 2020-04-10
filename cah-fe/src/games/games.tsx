@@ -17,7 +17,7 @@ export interface IGameState {
     readonly subscribedGame: any;
 }
 export class Games extends React.Component<any, IGameState> {
-    public socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
+    public socket: SocketIOClient.Socket = socketIOClient();
     constructor(props: any) {
         super(props);
         this.state = {

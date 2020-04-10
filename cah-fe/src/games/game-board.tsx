@@ -5,7 +5,7 @@ import { Button, Loader } from 'semantic-ui-react';
 import { autobind } from 'core-decorators';
 
 export class GameBoard extends React.Component<any, any> {
-    socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
+    socket: SocketIOClient.Socket = socketIOClient();
     constructor(props: any) {
         super(props);
         this.state = {

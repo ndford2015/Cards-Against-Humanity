@@ -21,7 +21,7 @@ export class JudgeView extends React.Component<any, any> {
     public render(): JSX.Element {
         const anyCardsPlayed: boolean = !!this.props.playedCards.length;
         return (
-            <div>
+            <div className="judge-view-container">
                 <div className="judge-header">{`Hi ${this.props.playerName}! You are the judge for this round!`}</div>
                 <div className="judge-info">{anyCardsPlayed ? this.pickCardString : this.waitingString}</div>
                 {this.getJudgeCards()}

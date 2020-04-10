@@ -118,8 +118,8 @@ export class Games extends React.Component<any, IGameState> {
     }
 
     @autobind
-    public pickWinner(playerId: string): void {
-        this.socket.emit('pickWinner', this.state.subscribedGame.id, playerId)
+    public nextRound(playerId: string): void {
+        this.socket.emit('nextRound', this.state.subscribedGame.id, playerId)
     }
 
     @autobind
@@ -134,7 +134,7 @@ export class Games extends React.Component<any, IGameState> {
             ? <JudgeView
                 playedCards={subscribedGame.playedWhiteCards}
                 playerName={subscribedGame.players[playerId].name}
-                pickWinner={this.pickWinner}
+                pickWinner={this.nextRound}
             />
             : <PlayerView 
                 getWhiteCard={this.getWhiteCard} 

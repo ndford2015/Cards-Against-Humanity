@@ -43,7 +43,7 @@ html, body {
     margin: 0px 10px !important;
 }
 
-.player-view-container {
+.player-view-container, .judge-view-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -110,6 +110,7 @@ html, body {
     justify-content: space-evenly;
     text-align: center;
     line-height: 1.5;
+    box-shadow: 4px 3px 14px 0px lightgrey
 }
 .player-view-buttons {
     display: flex;

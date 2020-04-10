@@ -104,7 +104,7 @@ io.on('connection', function(socket){
   }
 
   socket.on('createGame', (gameName) => {
-    const blackCards = _.shuffle([...gameData.blackCards]);
+    const blackCards = _.shuffle([...gameData.blackCards]).filter((card) => card.pick === 1);
     const activeBlackCard = blackCards.pop();
     games[socket.id] = {
       id: socket.id,
@@ -130,7 +130,6 @@ io.on('connection', function(socket){
   });
 
   socket.on('setJudge', (gameId, playerId) => {
-    console.log('setting current judge: ', playerId);
     games[gameId].currentJudge = playerId;
   })
 
@@ -139,11 +138,13 @@ io.on('connection', function(socket){
     games[gameId].players[playerId].whiteCards.push(whiteCard);
   });
 
-  socket.on('pickWinner', (gameId, winnerId) => {
+  socket.on('nextRound', (gameId, winnerId) => {
     games[gameId].currentJudge = null;
     games[gameId].playedWhiteCards = [];
-    games[gameId].players[winnerId].score++;
     games[gameId].activeBlackCard = games[gameId].blackCards.pop();
+    if (winnerId) {
+      games[gameId].players[winnerId].score++;
+    }
   });
 
   socket.on('swapCards', (gameId, playerId) => {
@@ -163,7 +164,7 @@ io.on('connection', function(socket){
     socket.emit('updatedGameState', games[gameId]);
     setInterval(() => {
       socket.emit('updatedGameState', games[gameId]);
-    }, 1000);
+    }, 500);
   });
   io.emit('getGames', games)
   interval = setInterval(() => io.emit('getGames', games), 5000);

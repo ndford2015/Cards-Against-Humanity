@@ -28,7 +28,10 @@ export class GameBoard extends React.Component<any, any> {
             : null;
     }
 
- 
+    @autobind
+    public nextRound(): void {
+        this.socket.emit('nextRound', this.state.game.id, null)
+    }
 
     public render(): JSX.Element {
         if (!this.state.game) {
@@ -47,6 +50,7 @@ export class GameBoard extends React.Component<any, any> {
                     <div className="active-black-card">
                         {activeBlackCard.text}
                     </div>
+                    <Button negative onClick={this.nextRound} >Skip this round</Button>
                 </div>
                 <div className="game-players">
                     {Object.values(players).map((player: any) => {

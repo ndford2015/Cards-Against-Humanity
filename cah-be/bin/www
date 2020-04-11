@@ -114,7 +114,8 @@ io.on('connection', function(socket){
       whiteCards: _.shuffle([...gameData.whiteCards]),
       activeBlackCard,
       playedWhiteCards: [],
-      currentJudge: null
+      currentJudge: null,
+      prevWinner: null
     };
   });
 
@@ -131,6 +132,7 @@ io.on('connection', function(socket){
 
   socket.on('setJudge', (gameId, playerId) => {
     games[gameId].currentJudge = playerId;
+    games[gameId].prevWinner = null;
   })
 
   socket.on('getWhiteCard', (gameId, playerId) => {
@@ -144,6 +146,7 @@ io.on('connection', function(socket){
     games[gameId].activeBlackCard = games[gameId].blackCards.pop();
     if (winnerId) {
       games[gameId].players[winnerId].score++;
+      games[gameId].prevWinner = winnerId;
     }
   });
 

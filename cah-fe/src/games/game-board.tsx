@@ -18,6 +18,9 @@ export class GameBoard extends React.Component<any, any> {
         this.socket.on('updatedGameState', (game: any) => {
             this.setState({game});
         });
+        this.socket.on('reconnect', (attemptNumber: number) => {
+            this.socket.emit('subscribeToGame', this.props.match.params.gameId)
+        });
     }
 
     @autobind
@@ -37,7 +40,7 @@ export class GameBoard extends React.Component<any, any> {
         if (!this.state.game) {
             return <Loader active/>
         }
-        const { currentJudge, activeBlackCard, players, name } = this.state.game;
+        const { currentJudge, activeBlackCard, players, name, prevWinner } = this.state.game;
         return (
             <div>
                 <div className="game-board-header">{`Welcome to game: ${name}`}</div>
@@ -51,7 +54,9 @@ export class GameBoard extends React.Component<any, any> {
                         {activeBlackCard.text}
                     </div>
                     <Button negative onClick={this.nextRound} >Skip this round</Button>
+                    {prevWinner && (<div className="prev-winner">{`${players[prevWinner].name} won the last round!`}</div>)}
                 </div>
+                <div className="players-header">Players</div>
                 <div className="game-players">
                     {Object.values(players).map((player: any) => {
                         const activeJudgeClass: string = currentJudge === player.id ? ' active-judge' : '';

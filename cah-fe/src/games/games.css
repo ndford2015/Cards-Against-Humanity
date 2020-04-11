@@ -64,11 +64,11 @@ html, body {
 .game-players {
     display: flex;
     flex-direction: row;
-    position: fixed;
+    position: relative;
     bottom: 10px;
     overflow-y: auto;
     flex-wrap: wrap;
-    height: 300px;
+    height: 20%;
     align-items: flex-end;
     margin-top: 30px;
 }
@@ -81,6 +81,14 @@ html, body {
     min-width: 100px;
     min-height: 100px;
     max-height: 120px;
+}
+
+.players-header {
+    font-size: 2em;
+    text-align: center;
+    border-top: 2px solid #000;
+    margin-top: 30px;
+    padding-top: 20px;
 }
 
 .player-card-header {
@@ -145,7 +153,7 @@ html, body {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    width: 300px;
+    max-width: 500px;
     border: 1px solid black;
     border-radius: 5px;
     background-color: black;
@@ -176,6 +184,17 @@ html, body {
     border: 1px solid crimson;
     padding: 10px;
     border-radius: 5px;
+    box-shadow: 4px 3px 14px 0px lightgrey;
+}
+
+.prev-winner {
+    color: #16ab39;
+    border: 1px solid #16ab39;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 4px 3px 14px 0px lightgrey;
+    font-size: 1.5em;
+    margin-top: 20px;
 }
 
 .active-judge {

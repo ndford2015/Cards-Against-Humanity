@@ -17,13 +17,18 @@ export class JudgeView extends React.Component<any, any> {
                 )
             });
     }
+
+    @autobind
+    public getPickCardString(): string {
+        return `${this.pickCardString} (${this.props.playedCards.length} of ${this.props.numPlayers} players have played a card)`
+    }
     
     public render(): JSX.Element {
         const anyCardsPlayed: boolean = !!this.props.playedCards.length;
         return (
             <div className="judge-view-container">
                 <div className="judge-header">{`Hi ${this.props.playerName}! You are the judge for this round!`}</div>
-                <div className="judge-info">{anyCardsPlayed ? this.pickCardString : this.waitingString}</div>
+                <div className="judge-info">{anyCardsPlayed ? this.getPickCardString() : this.waitingString}</div>
                 {this.getJudgeCards()}
             </div>
         )

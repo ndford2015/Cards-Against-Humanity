@@ -17,7 +17,7 @@ export interface IGameState {
     readonly subscribedGame: any;
 }
 export class Games extends React.Component<any, IGameState> {
-    public socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
+    public socket: SocketIOClient.Socket = socketIOClient();
     constructor(props: any) {
         super(props);
         this.state = {
@@ -49,7 +49,11 @@ export class Games extends React.Component<any, IGameState> {
         this.socket.on('updatedGameState', (game: any) => {
             this.setState({subscribedGame: game})
         });
-        
+        this.socket.on('reconnect', (attemptNumber: number) => {
+            if (this.state.subscribedGame) {
+                this.socket.emit('subscribeToGame', this.state.subscribedGame.id)
+            }
+        })
     }
 
     @autobind
@@ -133,6 +137,7 @@ export class Games extends React.Component<any, IGameState> {
         return subscribedGame.currentJudge === playerId
             ? <JudgeView
                 playedCards={subscribedGame.playedWhiteCards}
+                numPlayers={Object.keys(subscribedGame.players).length - 1}
                 playerName={subscribedGame.players[playerId].name}
                 pickWinner={this.nextRound}
             />

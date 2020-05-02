@@ -36,6 +36,11 @@ export class GameBoard extends React.Component<any, any> {
         this.socket.emit('nextRound', this.state.game.id, null)
     }
 
+    @autobind
+    public getGameLink(): string {
+        return `${window.location.hostname}/${this.state.game.id}`
+    }
+
     public render(): JSX.Element {
         if (!this.state.game) {
             return <Loader active/>
@@ -44,6 +49,7 @@ export class GameBoard extends React.Component<any, any> {
         return (
             <div>
                 <div className="game-board-header">{`Welcome to game: ${name}`}</div>
+                <div className="game-link">{`Send this link for other players to join!: ${this.getGameLink()}`}</div>
                 <div className="round-info">
                     <div className="active-judge-header">
                         {currentJudge 

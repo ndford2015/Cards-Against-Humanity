@@ -32,8 +32,12 @@ export class Games extends React.Component<any, IGameState> {
     }
 
     public componentDidMount(): void {
-        // const socket: SocketIOClient.Socket = socketIOClient(BACKEND_URL);
-        this.socket.on('connect', () => {
+        const { gameId } = this.props.match.params;
+        this.socket.on('connect', () => { 
+            if (gameId) {
+                this.socket.emit('subscribeToGame', gameId);
+                this.setState({modalOpen: true});
+            }
             const playerId: string | null = window.localStorage.getItem('playerId');
             if (playerId) {
                 this.setState({playerId});
@@ -64,16 +68,14 @@ export class Games extends React.Component<any, IGameState> {
     @autobind
     public createGame(): void {
         this.socket.emit('createGame', this.state.gameName);
-        this.props.history.push(`/games/${this.socket.id}`);
+        const gameId: string = this.socket.id.substring(0, 4);
+        this.props.history.push(`/games/${gameId}`);
     }
 
     @autobind 
     public joinGame(): void {
-        if (this.state.gameToJoin) {
-            this.socket.emit('joinGame', this.state.gameToJoin, this.state.playerName, this.state.playerId);
-            this.socket.emit('subscribeToGame', this.state.gameToJoin);
-        }
-        
+        const { gameId } = this.props.match.params;
+        this.socket.emit('joinGame', gameId, this.state.playerName, this.state.playerId);
     }
 
     @autobind 
@@ -151,10 +153,8 @@ export class Games extends React.Component<any, IGameState> {
             /> 
     }
 
-    public render(): JSX.Element {
-        return this.state.subscribedGame 
-            ?  this.getPlayerView() 
-            : (
+    public getCreateGameScreen(): JSX.Element {
+        return (
             <div className="games-container">
                 <h3>{'Create a new game!'}</h3>
                 <div>
@@ -173,8 +173,17 @@ export class Games extends React.Component<any, IGameState> {
                         return <Button className="game-button" onClick={setCurrentGame}>{`Join ${game.name}`}</Button>
                     })}
                 </div>
-                {this.getJoinModal()}
             </div>
         )
+    }
+
+    public render(): JSX.Element {
+        return this.state.subscribedGame && this.state.subscribedGame.players[this.state.playerId]
+            ? this.getPlayerView() 
+            : (
+            <>
+                {!this.props.match.params.gameId && this.getCreateGameScreen()}
+                {this.getJoinModal()}     
+            </>)
     }
 }

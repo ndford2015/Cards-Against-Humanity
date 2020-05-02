@@ -177,6 +177,13 @@ html, body {
     text-align: center;
 }
 
+.game-link {
+    margin: 10px;
+    text-align: center;
+    font-size: 1.2em;
+    color: #2185d0;
+}
+
 .active-judge-header {
     font-size: 1.5em;
     margin-bottom: 10px;

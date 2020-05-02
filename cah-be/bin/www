@@ -106,8 +106,9 @@ io.on('connection', function(socket){
   socket.on('createGame', (gameName) => {
     const blackCards = _.shuffle([...gameData.blackCards]).filter((card) => card.pick === 1);
     const activeBlackCard = blackCards.pop();
-    games[socket.id] = {
-      id: socket.id,
+    const gameId = socket.id.substring(0,4);
+    games[gameId] = {
+      id: gameId,
       name: gameName,
       players: {},
       blackCards: blackCards,
@@ -151,8 +152,11 @@ io.on('connection', function(socket){
   });
 
   socket.on('swapCards', (gameId, playerId) => {
+    const oldCards = [...games[gameId].players[playerId].whiteCards];
     const newCards = games[gameId].whiteCards.splice(-10, 10);
     games[gameId].players[playerId].whiteCards = newCards;
+    const newDeck = games[gameId].whiteCards.concat(oldCards);
+    games[gameId].whiteCards = _.shuffle([...newDeck]);
   });
 
   socket.on('playCard', (gameId, playerId, cardName) => {

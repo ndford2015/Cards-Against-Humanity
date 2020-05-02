@@ -93,12 +93,27 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
+
+
 // Handle creating and joining games
 var _ = require('lodash');
 const games = {};
+const timeouts = {}
 let interval;
+
+function deleteGame(gameId) {
+  delete games[gameId];  
+  delete timeouts[gameId];
+}
+
+function resetGameTimer(gameId) {
+  if (timeouts[gameId]) {
+    clearTimeout(timeouts[gameId]);
+    timeouts[gameId] = setTimeout(() => deleteGame(gameId), 3600000);
+  }
+}
+
 io.on('connection', function(socket){
-  console.log('a user connected with id: ', socket.id);
   if (interval) {
     clearInterval(interval);
   }
@@ -106,8 +121,10 @@ io.on('connection', function(socket){
   socket.on('createGame', (gameName) => {
     const blackCards = _.shuffle([...gameData.blackCards]).filter((card) => card.pick === 1);
     const activeBlackCard = blackCards.pop();
-    games[socket.id] = {
-      id: socket.id,
+    const gameId = socket.id.substring(0,4);
+    const timeout = setTimeout(() => deleteGame(gameId), 3600000);
+    games[gameId] = {
+      id: gameId,
       name: gameName,
       players: {},
       blackCards: blackCards,
@@ -115,8 +132,9 @@ io.on('connection', function(socket){
       activeBlackCard,
       playedWhiteCards: [],
       currentJudge: null,
-      prevWinner: null
+      prevWinner: null,
     };
+    timeouts[gameId] = timeout;
   });
 
   socket.on('joinGame', (gameId, playerName, playerId) => {
@@ -128,16 +146,19 @@ io.on('connection', function(socket){
       isJudge: false,
       score: 0
     }
+    resetGameTimer(gameId);
   });
 
   socket.on('setJudge', (gameId, playerId) => {
     games[gameId].currentJudge = playerId;
     games[gameId].prevWinner = null;
+    resetGameTimer(gameId);
   })
 
   socket.on('getWhiteCard', (gameId, playerId) => {
     const whiteCard = games[gameId].whiteCards.pop();
     games[gameId].players[playerId].whiteCards.push(whiteCard);
+    resetGameTimer(gameId);
   });
 
   socket.on('nextRound', (gameId, winnerId) => {
@@ -148,11 +169,16 @@ io.on('connection', function(socket){
       games[gameId].players[winnerId].score++;
       games[gameId].prevWinner = winnerId;
     }
+    resetGameTimer(gameId);
   });
 
   socket.on('swapCards', (gameId, playerId) => {
+    const oldCards = [...games[gameId].players[playerId].whiteCards];
     const newCards = games[gameId].whiteCards.splice(-10, 10);
     games[gameId].players[playerId].whiteCards = newCards;
+    const newDeck = games[gameId].whiteCards.concat(oldCards);
+    games[gameId].whiteCards = _.shuffle([...newDeck]);
+    resetGameTimer(gameId);
   });
 
   socket.on('playCard', (gameId, playerId, cardName) => {
@@ -161,6 +187,7 @@ io.on('connection', function(socket){
     playerWhiteCards.splice(cardIndex, 1);
     games[gameId].playedWhiteCards.push({playerId, cardName});
     playerWhiteCards.push(games[gameId].whiteCards.pop());
+    resetGameTimer(gameId);
   });
 
   socket.on('subscribeToGame', (gameId) => {

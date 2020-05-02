@@ -9,6 +9,7 @@ function App() {
     <Router>
       <Switch>
         <Route key="games" exact path='/' component={withRouter(Games)} />
+        <Route key="games" exact path='/:gameId' component={withRouter(Games)} />
         <Route key="game-board" exact path='/games/:gameId' component={withRouter(GameBoard)} />
       </Switch>
     </Router>

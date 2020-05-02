@@ -166,13 +166,6 @@ export class Games extends React.Component<any, IGameState> {
                         Create Game
                     </Button>
                 </div>
-                <div className='available-games'>
-                    {'Available Games'}
-                    {Object.values(this.state.games).map((game: any) => {
-                        const setCurrentGame: any = () => this.setCurrentGame(game.id)
-                        return <Button className="game-button" onClick={setCurrentGame}>{`Join ${game.name}`}</Button>
-                    })}
-                </div>
             </div>
         )
     }
